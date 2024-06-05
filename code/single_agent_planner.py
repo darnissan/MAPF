@@ -21,7 +21,7 @@ def compute_heuristics(my_map, goal):
     closed_list[goal] = root
     while len(open_list) > 0:
         (cost, loc, curr) = heapq.heappop(open_list)
-        for dir in range(4):
+        for dir in range(5):
             child_loc = move(loc, dir)
             child_cost = cost + 1
             if child_loc[0] < 0 or child_loc[0] >= len(my_map) \
@@ -29,8 +29,8 @@ def compute_heuristics(my_map, goal):
                continue
             if my_map[child_loc[0]][child_loc[1]]:
                 continue
-            child = {'loc': child_loc, 'cost': child_cost}
-            if child_loc in closed_list:
+            child = {'loc': child_loc, 'cost': child_cost,}
+            if (child_loc in closed_list):
                 existing_node = closed_list[child_loc]
                 if existing_node['cost'] > child_cost:
                     closed_list[child_loc] = child
@@ -64,7 +64,7 @@ def build_constraint_table(constraints, agent):
             if constraint['timestep'] in constrain_table:
                 constrain_table[constraint['timestep']].append(constraint['loc'])
             else:
-                constrain_table[constraint['timestep']] = [constraint['loc']]
+                constrain_table[constraint['timestep']] = constraint['loc']
     
     
     return constrain_table
@@ -94,8 +94,22 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table):
     # Task 1.2/1.3: Check if a move from curr_loc to next_loc at time step next_time violates
     #               any given constraint. For efficiency the constraints are indexed in a constraint_table
     #               by time step, see build_constraint_table.
+    '''1.3 Adding Edge Constraints
+We now consider (negative) edge constraints, that prohibit a given agent from moving from a given
+cell to another given cell at a given time step.
+The following code creates a (negative) edge constraint that prohibits agent 2 from moving from cell
+(1, 1) to cell (1, 2) from time step 4 to time step 5:
+{'agent': 2,
+'loc': [(1,1), (1,2)],
+'timestep': 5}
+Implement constraint handling for edge constraints in the function is_constrained.
+You can test your code by adding a constraint in prioritized.py that prohibits agent 1 from
+moving from its start cell (1, 2) to the neighboring cell (1, 3) from time step 0 to time step 1
+    '''  
     if next_time in constraint_table:
-        if next_loc in constraint_table[next_time]:
+        if next_loc in constraint_table[next_time] and len(constraint_table[next_time])==1:
+            return True
+        if [curr_loc,next_loc] in constraint_table[next_time] or [curr_loc,next_loc] == constraint_table[next_time] :
             return True
     return False
 
@@ -122,14 +136,22 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         agent       - the agent that is being re-planned
         constraints - constraints defining where robot should or cannot go at each timestep
     """
-
+  
+    
+    
+   
     ##############################
     # Task 1.1: Extend the A* search to search in the space-time domain
     #           rather than space domain, only.
     constrain_table=build_constraint_table(constraints, agent)
+   
+    intKey = []
+    for constraint in constraints:
+        if constraint['loc'] == [goal_loc]:
+            intKey.append(constraint['timestep'])
+    earliest_goal_timestep = max(intKey)+1 if len(intKey) != 0 else 0
     open_list = []
     closed_list = dict()
-    earliest_goal_timestep = 0
     h_value = h_values[start_loc]
     root = {'loc': start_loc, 'g_val': 0, 'h_val': h_value, 'parent': None,'timestep':0}
     push_node(open_list, root)
@@ -138,9 +160,10 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         curr = pop_node(open_list)
         #############################
         # Task 1.4: Adjust the goal test condition to handle goal constraints
-        if curr['loc'] == goal_loc:
+        if curr['loc'] == goal_loc and curr['timestep'] >= earliest_goal_timestep:
             return get_path(curr)
-        for dir in range(4):
+        for dir in range(5):
+           
             child_loc = move(curr['loc'], dir)
             if my_map[child_loc[0]][child_loc[1]]:
                 continue
