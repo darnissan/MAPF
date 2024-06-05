@@ -105,11 +105,16 @@ The following code creates a (negative) edge constraint that prohibits agent 2 f
 Implement constraint handling for edge constraints in the function is_constrained.
 You can test your code by adding a constraint in prioritized.py that prohibits agent 1 from
 moving from its start cell (1, 2) to the neighboring cell (1, 3) from time step 0 to time step 1
-    '''  
+    ''' 
+    #if len(constraint_table) != 0 and next_time==3: 
+        #breakpoint()
     if next_time in constraint_table:
-        if next_loc in constraint_table[next_time] and len(constraint_table[next_time])==1:
+        if next_loc in constraint_table[next_time] :
             return True
-        if [curr_loc,next_loc] in constraint_table[next_time] or [curr_loc,next_loc] == constraint_table[next_time] :
+        if  (len(constraint_table[next_time])==len(next_loc) and next_loc == constraint_table[next_time]):
+            return True
+        if [curr_loc,next_loc] in constraint_table[next_time] or [curr_loc,next_loc] == [constraint_table[next_time]] :
+          
             return True
     return False
 
@@ -143,19 +148,27 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
     ##############################
     # Task 1.1: Extend the A* search to search in the space-time domain
     #           rather than space domain, only.
+    print("now with agent" + str(agent))
     constrain_table=build_constraint_table(constraints, agent)
-   
+    print("the constraint table for agent" +str(agent) +" is  \n"+ str(constrain_table))
+    print("the len of the constraint table is " + str(len(constrain_table)))
     intKey = []
-    for constraint in constraints:
-        if constraint['loc'] == [goal_loc]:
-            intKey.append(constraint['timestep'])
-    earliest_goal_timestep = max(intKey)+1 if len(intKey) != 0 else 0
+    if len(constrain_table) == 0:
+        earliest_goal_timestep = 0
+    else:
+        for constraint in constrain_table.items():
+          
+            if [constraint[1]] == [goal_loc]:
+                
+                intKey.append(constraint[0])
+        earliest_goal_timestep = max(intKey)+1 if len(intKey) != 0 else 0
     open_list = []
     closed_list = dict()
     h_value = h_values[start_loc]
     root = {'loc': start_loc, 'g_val': 0, 'h_val': h_value, 'parent': None,'timestep':0}
     push_node(open_list, root)
     closed_list[(root['loc'],root['timestep'])] = root
+    
     while len(open_list) > 0:
         curr = pop_node(open_list)
         #############################
@@ -173,6 +186,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
                     'parent': curr,
                     'timestep': curr['timestep'] + 1}
             if is_constrained(curr['loc'], child['loc'], child['timestep'], constrain_table):
+                
                 continue
             if (child['loc'],child['timestep']) in closed_list:
                 existing_node = closed_list[(child['loc'],child['timestep'])]
