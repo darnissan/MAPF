@@ -110,7 +110,8 @@ moving from its start cell (1, 2) to the neighboring cell (1, 3) from time step 
         #breakpoint()
     #breakpoint()
     if next_time in constraint_table:
-       
+        if next_time==3:
+            breakpoint()
         if  (len(constraint_table[next_time])==len([next_loc]) and [next_loc] == constraint_table[next_time]):
            
             return True
@@ -158,7 +159,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
     else:
         for constraint in constrain_table.items():
             
-            if constraint[1] == [goal_loc]:
+            if constraint[1] == [goal_loc] or constraint[1] == goal_loc:
                 
                 intKey.append(constraint[0])
         earliest_goal_timestep = max(intKey)+1 if len(intKey) != 0 else 0
@@ -168,7 +169,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
     root = {'loc': start_loc, 'g_val': 0, 'h_val': h_value, 'parent': None,'timestep':0}
     push_node(open_list, root)
     closed_list[(root['loc'],root['timestep'])] = root
-   
+    
     while len(open_list) > 0:
         curr = pop_node(open_list)
         #############################
@@ -185,6 +186,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
                     'h_val': h_values[child_loc],
                     'parent': curr,
                     'timestep': curr['timestep'] + 1}
+            
             if is_constrained(curr['loc'], child['loc'], child['timestep'], constrain_table):
                 
                 continue
