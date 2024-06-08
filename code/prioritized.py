@@ -35,9 +35,7 @@ class PrioritizedPlanningSolver(object):
                             {'agent':1,'loc':[(1,2),(1,3)],'timestep':1},
                        ]
         '''
-        constraints = [
-                
-                       ]
+        constraints = []
         '''Add code to prioritized.py that adds all necessary vertex constraints. You need two loops, namely
         one to iterate over the path of the current agent and one to add vertex constraints for all future
         agents (since constraints apply only to the specified agent). 
@@ -51,13 +49,34 @@ class PrioritizedPlanningSolver(object):
             #    for j in range(i+1, self.num_of_agents):
             #        constraints.append({'loc': [path[t],path[t+1]], 'timestep': t, 'agent': j})
             # constraints.append({'loc': [path[len(path)]], 'timestep': len(path), 'agent': i})
-            # result.append(path)
-            for timestep, loc in enumerate(path):
-                for next_agent in range(self.num_of_agents):
-                    if next_agent != i: 
-                        constraints.append({'agent': next_agent, 'loc': [loc], 'timestep': timestep}) 
-                        if timestep >0:
-                            constraints.append({'agent': next_agent, 'loc': [loc,(path[timestep-1])], 'timestep': timestep})
+            result.append(path)
+            for next_agent in range(self.num_of_agents):
+
+
+                for i in range (0,10):
+
+                #     # Task 2.3 Adding goal constraints and max timestep allowed was 10
+
+                    constraints.append({'agent' : next_agent, 'loc' : [path[len(path) - 1]], 'timestep' : len(path)+i - 1})
+                
+                for nPath in range(len(path)):
+                    # print(path[len(path) - 1])
+
+                    # constraints.append({'agent' : next_agent, 'loc' : [path[len(path) - 1]], 'timestep' : nPath})
+
+                    # constraints.append({'agent' : next_agent, 'loc' : [path[len(path) - 1]], 'timestep' : nPath+len(path)})
+
+                    # Task 2.1 Vertex Constraints
+                    if next_agent != i:
+
+                        constraints.append({'agent' : next_agent, 'loc' : [path[nPath]], 'timestep' : nPath})
+
+
+                        # Task 2.2 Edge Constraints
+
+                        if nPath > 0:
+                            constraints.append({'agent' : next_agent, 'loc' : [path[nPath],path[nPath-1]], 'timestep' : nPath})
+
             
             
         

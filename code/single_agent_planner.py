@@ -29,7 +29,7 @@ def compute_heuristics(my_map, goal):
                continue
             if my_map[child_loc[0]][child_loc[1]]:
                 continue
-            child = {'loc': child_loc, 'cost': child_cost,}
+            child = {'loc': child_loc, 'cost': child_cost}
             if (child_loc in closed_list):
                 existing_node = closed_list[child_loc]
                 if existing_node['cost'] > child_cost:
@@ -58,16 +58,21 @@ def build_constraint_table(constraints, agent):
 'loc': [(3,4)],
 'timestep': 5}
     '''
-    constrain_table = dict()
+    constraint_table = dict()
     for constraint in constraints:
+
         if constraint['agent'] == agent:
-            if constraint['timestep'] in constrain_table:
-                constrain_table[constraint['timestep']].append(constraint['loc'])
+
+            if constraint['timestep'] in constraint_table.keys():
+
+                constraint_table[constraint['timestep']].append(constraint['loc'])
+
             else:
-                constrain_table[constraint['timestep']] = constraint['loc']
+
+                constraint_table[constraint['timestep']] = [constraint['loc']]
     
     
-    return constrain_table
+    return constraint_table
 
 
 def get_location(path, time):
@@ -94,25 +99,16 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table):
     # Task 1.2/1.3: Check if a move from curr_loc to next_loc at time step next_time violates
     #               any given constraint. For efficiency the constraints are indexed in a constraint_table
     #               by time step, see build_constraint_table.
-    '''1.3 Adding Edge Constraints
-We now consider (negative) edge constraints, that prohibit a given agent from moving from a given
-cell to another given cell at a given time step.
-The following code creates a (negative) edge constraint that prohibits agent 2 from moving from cell
-(1, 1) to cell (1, 2) from time step 4 to time step 5:
-{'agent': 2,
-'loc': [(1,1), (1,2)],
-'timestep': 5}
-Implement constraint handling for edge constraints in the function is_constrained.
-You can test your code by adding a constraint in prioritized.py that prohibits agent 1 from
-moving from its start cell (1, 2) to the neighboring cell (1, 3) from time step 0 to time step 1
-    ''' 
+
  
-    if constraint_table is None or len(constraint_table)==0:
-        return False
-    if  (len(constraint_table[next_time])==len([next_loc]) and [next_loc] == constraint_table[next_time]):   
-        return True
-    if [curr_loc,next_loc] in constraint_table[next_time] or [curr_loc,next_loc] == constraint_table[next_time] :
-        return True
+    if next_time in constraint_table:
+        for loc in constraint_table[next_time]:
+            if len(loc) == 1:
+                if loc == [next_loc] or loc==next_loc or loc == [next_loc] or (next_loc) in loc:
+                    return True
+            elif loc == [curr_loc, next_loc]:
+                return True
+
     return False
 
 
@@ -154,9 +150,9 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         earliest_goal_timestep = 0
     else:
         for constraint in constrain_table.items():
-            
-            if constraint[1] == [goal_loc] or constraint[1] == goal_loc:
-                
+          
+            if [goal_loc] in constraint[1]   or constraint[1] == goal_loc or constraint[1] == [goal_loc] or (goal_loc) in constraint[1]:
+               
                 intKey.append(constraint[0])
         earliest_goal_timestep = max(intKey)+1 if len(intKey) != 0 else 0
     open_list = []
@@ -164,8 +160,8 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
     h_value = h_values[start_loc]
     root = {'loc': start_loc, 'g_val': 0, 'h_val': h_value, 'parent': None,'timestep':0}
     push_node(open_list, root)
-    closed_list[(root['loc'],root['timestep'])] = root
-    
+    closed_list[(root['loc']), root['timestep']] = root
+
     while len(open_list) > 0:
         curr = pop_node(open_list)
         #############################
@@ -182,7 +178,6 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
                     'h_val': h_values[child_loc],
                     'parent': curr,
                     'timestep': curr['timestep'] + 1}
-          
             if is_constrained(curr['loc'], child['loc'], child['timestep'], constrain_table):
                 
                 continue
