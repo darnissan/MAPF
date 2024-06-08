@@ -106,17 +106,13 @@ Implement constraint handling for edge constraints in the function is_constraine
 You can test your code by adding a constraint in prioritized.py that prohibits agent 1 from
 moving from its start cell (1, 2) to the neighboring cell (1, 3) from time step 0 to time step 1
     ''' 
-    #if len(constraint_table) != 0 and next_time==3: 
-        #breakpoint()
-    #breakpoint()
-    if next_time in constraint_table:
-        if next_time==3:
-            breakpoint()
-        if  (len(constraint_table[next_time])==len([next_loc]) and [next_loc] == constraint_table[next_time]):
-           
-            return True
-        if [curr_loc,next_loc] in constraint_table[next_time] or [curr_loc,next_loc] == constraint_table[next_time] :
-            return True
+ 
+    if constraint_table is None or len(constraint_table)==0:
+        return False
+    if  (len(constraint_table[next_time])==len([next_loc]) and [next_loc] == constraint_table[next_time]):   
+        return True
+    if [curr_loc,next_loc] in constraint_table[next_time] or [curr_loc,next_loc] == constraint_table[next_time] :
+        return True
     return False
 
 
@@ -186,7 +182,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
                     'h_val': h_values[child_loc],
                     'parent': curr,
                     'timestep': curr['timestep'] + 1}
-            
+          
             if is_constrained(curr['loc'], child['loc'], child['timestep'], constrain_table):
                 
                 continue

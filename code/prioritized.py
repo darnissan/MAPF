@@ -28,15 +28,40 @@ class PrioritizedPlanningSolver(object):
 
         start_time = timer.time()
         result = []
-        constraints = [{'agent': 0, 'loc': [(1, 5)], 'timestep': 4}]
-
+        '''TASK 1 CONSTS
+        [
+                       {'agent':0,'loc':[(1,5)],'timestep':10},
+                           {'agent':0,'loc':[(1,5)],'timestep':4},
+                            {'agent':1,'loc':[(1,2),(1,3)],'timestep':1},
+                       ]
+        '''
+        constraints = [
+                
+                       ]
+        '''Add code to prioritized.py that adds all necessary vertex constraints. You need two loops, namely
+        one to iterate over the path of the current agent and one to add vertex constraints for all future
+        agents (since constraints apply only to the specified agent). 
+        '''
         for i in range(self.num_of_agents):  # Find path for each agent
             path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
             if path is None:
                 raise BaseException('No solutions')
-            result.append(path)
-
+            # for t in range(len(path)-1):
+            #    for j in range(i+1, self.num_of_agents):
+            #        constraints.append({'loc': [path[t],path[t+1]], 'timestep': t, 'agent': j})
+            # constraints.append({'loc': [path[len(path)]], 'timestep': len(path), 'agent': i})
+            # result.append(path)
+            for timestep, loc in enumerate(path):
+                for next_agent in range(self.num_of_agents):
+                    if next_agent != i: 
+                        constraints.append({'agent': next_agent, 'loc': [loc], 'timestep': timestep}) 
+                        if timestep >0:
+                            constraints.append({'agent': next_agent, 'loc': [loc,(path[timestep-1])], 'timestep': timestep})
+            
+            
+        
+        
             ##############################
             # Task 2: Add constraints here
             #         Useful variables:
