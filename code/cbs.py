@@ -47,8 +47,16 @@ def standard_splitting(collision):
     #           Edge collision: the first constraint prevents the first agent to traverse the specified edge at the
     #                          specified timestep, and the second constraint prevents the second agent to traverse the
     #                          specified edge at the specified timestep
-
-    pass
+  
+    splitted_constraints = []
+    if len(collision['loc']) == 1:
+        splitted_constraints.append({'agent': collision['a1'], 'loc': [collision['loc']], 'timestep': collision['timestep']})
+        splitted_constraints.append({'agent': collision['a2'], 'loc': [collision['loc']], 'timestep': collision['timestep']})
+    else:
+        splitted_constraints.append({'agent': collision['a1'], 'loc': collision['loc'], 'timestep': collision['timestep']})
+        splitted_constraints.append({'agent': collision['a2'], 'loc': collision['loc'], 'timestep': collision['timestep']})
+    return splitted_constraints
+    
 
 
 def disjoint_splitting(collision):
@@ -145,6 +153,29 @@ class CBSSolver(object):
         #                standard_splitting function). Add a new child node to your open list for each constraint
         #           Ensure to create a copy of any objects that your child nodes might inherit
 
+        while self.open_list:
+            P=self.pop_node()
+            if len(P['collisions'])==0:
+                self.print_results(P)
+                return P['paths']
+            else:
+                one_collision=P['collisions'][0]
+                constraints=standard_splitting(one_collision)
+                for constraint in constraints:
+                    child= P.copy()
+                    child['constraints'].append(constraint)
+                    child['paths']=P['paths']
+                    ai=constraint['agent']
+                    path=a_star(self.my_map, self.starts[ai], self.goals[ai], self.heuristics[ai], ai, child['constraints'])
+                    if path is not None:
+                        child['paths'][ai]=path
+                        child['collisions']=detect_collisions(child['paths'])
+                        child['cost']=get_sum_of_cost(child['paths'])
+                        self.push_node(child)
+                        
+            
+            
+            
         self.print_results(root)
         return root['paths']
 

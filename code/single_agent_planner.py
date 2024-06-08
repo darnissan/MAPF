@@ -171,6 +171,9 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         for dir in range(5):
            
             child_loc = move(curr['loc'], dir)
+            if child_loc[0] < 0 or child_loc[0] >= len(my_map) \
+                or child_loc[1] < 0 or child_loc[1] >= len(my_map[0]):
+                continue
             if my_map[child_loc[0]][child_loc[1]]:
                 continue
             child = {'loc': child_loc,
@@ -178,6 +181,7 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
                     'h_val': h_values[child_loc],
                     'parent': curr,
                     'timestep': curr['timestep'] + 1}
+            
             if is_constrained(curr['loc'], child['loc'], child['timestep'], constrain_table):
                 
                 continue
