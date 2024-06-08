@@ -52,30 +52,16 @@ class PrioritizedPlanningSolver(object):
             result.append(path)
             for next_agent in range(self.num_of_agents):
 
-
-                for i in range (0,10):
-
-                #     # Task 2.3 Adding goal constraints and max timestep allowed was 10
-
-                    constraints.append({'agent' : next_agent, 'loc' : [path[len(path) - 1]], 'timestep' : len(path)+i - 1})
-                
-                for nPath in range(len(path)):
-                    # print(path[len(path) - 1])
-
-                    # constraints.append({'agent' : next_agent, 'loc' : [path[len(path) - 1]], 'timestep' : nPath})
-
-                    # constraints.append({'agent' : next_agent, 'loc' : [path[len(path) - 1]], 'timestep' : nPath+len(path)})
-
-                    # Task 2.1 Vertex Constraints
+                  for time in range(len(path)):
+       
                     if next_agent != i:
 
-                        constraints.append({'agent' : next_agent, 'loc' : [path[nPath]], 'timestep' : nPath})
+                        constraints.append({'agent' : next_agent, 'loc' : [path[time]], 'timestep' : time})
 
 
-                        # Task 2.2 Edge Constraints
 
-                        if nPath > 0:
-                            constraints.append({'agent' : next_agent, 'loc' : [path[nPath],path[nPath-1]], 'timestep' : nPath})
+                        if time > 0:
+                            constraints.append({'agent' : next_agent, 'loc' : [path[time],path[time-1]], 'timestep' : time})
 
             
             
