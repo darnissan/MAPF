@@ -51,15 +51,9 @@ class PrioritizedPlanningSolver(object):
             # constraints.append({'loc': [path[len(path)]], 'timestep': len(path), 'agent': i})
             result.append(path)
             for next_agent in range(self.num_of_agents):
-
                   for time in range(len(path)):
-       
                     if next_agent != i:
-
                         constraints.append({'agent' : next_agent, 'loc' : [path[time]], 'timestep' : time})
-
-
-
                         if time > 0:
                             constraints.append({'agent' : next_agent, 'loc' : [path[time],path[time-1]], 'timestep' : time})
 

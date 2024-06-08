@@ -141,10 +141,10 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
     ##############################
     # Task 1.1: Extend the A* search to search in the space-time domain
     #           rather than space domain, only.
-    print("now with agent" + str(agent))
+   # print("now with agent" + str(agent))
     constrain_table=build_constraint_table(constraints, agent)
-    print("the constraint table for agent" +str(agent) +" is  \n"+ str(constrain_table))
-    print("the len of the constraint table is " + str(len(constrain_table)))
+    #print("the constraint table for agent" +str(agent) +" is  \n"+ str(constrain_table))
+    #print("the len of the constraint table is " + str(len(constrain_table)))
     intKey = []
     if len(constrain_table) == 0:
         earliest_goal_timestep = 0

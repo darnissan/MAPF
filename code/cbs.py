@@ -11,8 +11,15 @@ def detect_collision(path1, path2):
     #           A vertex collision occurs if both robots occupy the same location at the same timestep
     #           An edge collision occurs if the robots swap their location at the same timestep.
     #           You should use "get_location(path, t)" to get the location of a robot at time t.
-
-    pass
+    max_len = max(len(path1), len(path2))
+    for t in range(max_len):
+        if get_location(path1, t) == get_location(path2, t):
+            return {'loc': get_location(path1, t), 'timestep': t}
+        if t > 0 and get_location(path1, t) == get_location(path2, t - 1) and get_location(path1, t - 1) == get_location(path2, t):
+            return {'loc': [get_location(path1, t), get_location(path1, t - 1)], 'timestep': t}
+    
+    
+    
 
 
 def detect_collisions(paths):
@@ -21,11 +28,17 @@ def detect_collisions(paths):
     #           A collision can be represented as dictionary that contains the id of the two robots, the vertex or edge
     #           causing the collision, and the timestep at which the collision occurred.
     #           You should use your detect_collision function to find a collision between two robots.
-
-    pass
+    collisions = []
+    for i in range(len(paths)):
+        for j in range(i + 1, len(paths)):
+            collision = detect_collision(paths[i], paths[j])
+            if collision is not None:
+                collisions.append({'a1': i, 'a2': j, 'loc': collision['loc'], 'timestep': collision['timestep']})
+    return collisions
 
 
 def standard_splitting(collision):
+    
     ##############################
     # Task 3.2: Return a list of (two) constraints to resolve the given collision
     #           Vertex collision: the first constraint prevents the first agent to be at the specified location at the
