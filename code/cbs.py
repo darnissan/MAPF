@@ -2,6 +2,14 @@ import time as timer
 import heapq
 import random
 from single_agent_planner import compute_heuristics, a_star, get_location, get_sum_of_cost
+from copy import deepcopy
+
+
+def collioson_wrapper(agent1,agent2,loc,timestep):
+    return {'a1':agent1,'a2':agent2,'loc':loc,'timestep':timestep}
+
+def constraint_wrapper(agent: int, loc: list[tuple], timestep: int):
+    return {'agent':agent,'loc':loc,'timestep':timestep}
 
 
 def detect_collision(path1, path2):
@@ -14,10 +22,10 @@ def detect_collision(path1, path2):
     max_len = max(len(path1), len(path2))
     for t in range(max_len):
         if get_location(path1, t) == get_location(path2, t):
-            return {'loc': get_location(path1, t), 'timestep': t}
+            return [get_location(path1, t),t]
         if t > 0 and get_location(path1, t) == get_location(path2, t - 1) and get_location(path1, t - 1) == get_location(path2, t):
-            return {'loc': [get_location(path1, t), get_location(path1, t - 1)], 'timestep': t}
-    
+            return [get_location(path1, t-1 ), get_location(path1, t),t]
+    return None
     
     
 
@@ -33,7 +41,7 @@ def detect_collisions(paths):
         for j in range(i + 1, len(paths)):
             collision = detect_collision(paths[i], paths[j])
             if collision is not None:
-                collisions.append({'a1': i, 'a2': j, 'loc': collision['loc'], 'timestep': collision['timestep']})
+                collisions.append(collioson_wrapper(i,j,collision[:-1],collision[-1]))
     return collisions
 
 
@@ -49,12 +57,10 @@ def standard_splitting(collision):
     #                          specified edge at the specified timestep
   
     splitted_constraints = []
-    if len(collision['loc']) == 1:
-        splitted_constraints.append({'agent': collision['a1'], 'loc': [collision['loc']], 'timestep': collision['timestep']})
-        splitted_constraints.append({'agent': collision['a2'], 'loc': [collision['loc']], 'timestep': collision['timestep']})
-    else:
-        splitted_constraints.append({'agent': collision['a1'], 'loc': collision['loc'], 'timestep': collision['timestep']})
-        splitted_constraints.append({'agent': collision['a2'], 'loc': collision['loc'], 'timestep': collision['timestep']})
+    splitted_constraints.append(constraint_wrapper(collision['a1'],collision['loc'],collision['timestep']))
+    agent2_loc = collision['loc']
+    agent2_loc = agent2_loc[::-1]
+    splitted_constraints.append(constraint_wrapper(collision['a2'],agent2_loc,collision['timestep']))
     return splitted_constraints
     
 
@@ -153,26 +159,25 @@ class CBSSolver(object):
         #                standard_splitting function). Add a new child node to your open list for each constraint
         #           Ensure to create a copy of any objects that your child nodes might inherit
 
-        while self.open_list:
+        while len (self.open_list)>0:
             P=self.pop_node()
             if len(P['collisions'])==0:
                 self.print_results(P)
                 return P['paths']
-            else:
-                one_collision=P['collisions'][0]
-                constraints=standard_splitting(one_collision)
-                for constraint in constraints:
-                    child= P.copy()
-                    child['constraints'].append(constraint)
-                    child['paths']=P['paths']
-                    ai=constraint['agent']
-                    path=a_star(self.my_map, self.starts[ai], self.goals[ai], self.heuristics[ai], ai, child['constraints'])
-                    if path is not None:
-                        child['paths'][ai]=path
-                        child['collisions']=detect_collisions(child['paths'])
-                        child['cost']=get_sum_of_cost(child['paths'])
-                        self.push_node(child)
-                        
+            one_collision=P['collisions'][0]
+            constraints=standard_splitting(one_collision)
+            for constraint in constraints:
+                curr_agent=constraint['agent']
+                curr_constraints=deepcopy(P['constraints'])
+                curr_constraints.append(constraint)
+                curr_paths=deepcopy(P['paths'])
+                path=a_star(self.my_map, self.starts[curr_agent], self.goals[curr_agent], self.heuristics[curr_agent], curr_agent, curr_constraints)
+                curr_paths[curr_agent]=path
+                if path is not None:
+                    child={'cost':get_sum_of_cost(curr_paths), 'constraints':curr_constraints,
+                            'paths':curr_paths, 'collisions':detect_collisions(curr_paths)}
+                    self.push_node(child)
+                    
             
             
             
