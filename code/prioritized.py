@@ -23,6 +23,10 @@ class PrioritizedPlanningSolver(object):
         for goal in self.goals:
             self.heuristics.append(compute_heuristics(my_map, goal))
 
+
+   
+
+
     def find_solution(self):
         """ Finds paths for all agents from their start locations to their goal locations."""
 
@@ -43,6 +47,24 @@ class PrioritizedPlanningSolver(object):
         for i in range(self.num_of_agents):  # Find path for each agent
             path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
+            for next_agent in range(i+1,self.num_of_agents):
+                for time in range(len(path)):
+                        constraints.append({'agent' : next_agent, 'loc' : [path[time]], 'timestep' : time})
+                        if time > 0:
+                            constraints.append({'agent' : next_agent, 'loc' : [path[time],path[time-1]], 'timestep' : time})
+            #Task 2.3 - blocking reached goals
+                while True:
+                    breakpoint()
+                    next_agent_path=a_star(self.my_map, self.starts[next_agent], self.goals[next_agent], self.heuristics[next_agent], next_agent, constraints)
+                    blocked_goal=path[-1]
+                    if blocked_goal in next_agent_path:
+                        constraints.append({'agent' : next_agent, 'loc' : [blocked_goal], 'timestep' : next_agent_path.index(blocked_goal)}) # block the goal
+                        constraints.append({'agent' : next_agent, 'loc' : [ path[-2]], 'timestep' : next_agent_path.index(blocked_goal)}) # block the location agent came from
+                    else:
+                        break
+            
+                        
+            
             if path is None:
                 raise BaseException('No solutions')
             # for t in range(len(path)-1):
@@ -50,13 +72,8 @@ class PrioritizedPlanningSolver(object):
             #        constraints.append({'loc': [path[t],path[t+1]], 'timestep': t, 'agent': j})
             # constraints.append({'loc': [path[len(path)]], 'timestep': len(path), 'agent': i})
             result.append(path)
-            for next_agent in range(self.num_of_agents):
-                  for time in range(len(path)):
-                    if next_agent != i:
-                        constraints.append({'agent' : next_agent, 'loc' : [path[time]], 'timestep' : time})
-                        if time > 0:
-                            constraints.append({'agent' : next_agent, 'loc' : [path[time],path[time-1]], 'timestep' : time})
-
+           
+            
             
             
         
