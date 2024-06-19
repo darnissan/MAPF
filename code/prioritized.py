@@ -54,8 +54,10 @@ class PrioritizedPlanningSolver(object):
                             constraints.append({'agent' : next_agent, 'loc' : [path[time],path[time-1]], 'timestep' : time})
             #Task 2.3 - blocking reached goals
                 while True:
-                    breakpoint()
+                   
                     next_agent_path=a_star(self.my_map, self.starts[next_agent], self.goals[next_agent], self.heuristics[next_agent], next_agent, constraints)
+                    if len(next_agent_path)>=len(self.my_map)*len(self.my_map[0]):
+                        raise BaseException('No solutions')
                     blocked_goal=path[-1]
                     if blocked_goal in next_agent_path:
                         constraints.append({'agent' : next_agent, 'loc' : [blocked_goal], 'timestep' : next_agent_path.index(blocked_goal)}) # block the goal
