@@ -90,7 +90,7 @@ if __name__ == '__main__':
         print("***Import an instance***")
         my_map, starts, goals = import_mapf_instance(file)
         print_mapf_instance(my_map, starts, goals)
-
+        print ("instance file is " + file) 
         if args.solver == "CBS":
             print("***Run CBS***")
             cbs = CBSSolver(my_map, starts, goals)

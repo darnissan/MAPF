@@ -164,7 +164,8 @@ class CBSSolver(object):
             if len(P['collisions'])==0:
                 self.print_results(P)
                 return P['paths']
-            one_collision=P['collisions'][0]
+            
+            one_collision = random.choice(P['collisions'])
             constraints=standard_splitting(one_collision)
             for constraint in constraints:
                 curr_agent=constraint['agent']

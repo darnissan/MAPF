@@ -32,25 +32,39 @@ class PrioritizedPlanningSolver(object):
 
         start_time = timer.time()
         result = []
-        '''TASK 1 CONSTS
-        [
-                       {'agent':0,'loc':[(1,5)],'timestep':10},
-                           {'agent':0,'loc':[(1,5)],'timestep':4},
-                            {'agent':1,'loc':[(1,2),(1,3)],'timestep':1},
-                       ]
+        
         '''
+        Constraints by Task
+        Task 1.2
+        {'agent': 0, 'loc': [(1, 5)], 'timestep': 4}
+        
+        Task 1.3
+        {'agent': 1, 'loc': [(1,2),(1, 3)], 'timestep': 1}
+        
+        Task 1.4
+        {'agent': 0, 'loc': [(1, 5)], 'timestep': 10}
+        
+        Task 1.5
+        {'agent': 1, 'loc': [(1, 3)], 'timestep': 2}
+        {'agent': 1, 'loc': [(1, 2)], 'timestep': 2}
+        {'agent': 1, 'loc': [(1, 4)], 'timestep': 2}
+        '''
+        
+        
+        
+        
+        
         constraints = []
-        '''Add code to prioritized.py that adds all necessary vertex constraints. You need two loops, namely
-        one to iterate over the path of the current agent and one to add vertex constraints for all future
-        agents (since constraints apply only to the specified agent). 
-        '''
+       
         for i in range(self.num_of_agents):  # Find path for each agent
             path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
                           i, constraints)
+            #Task 2.1 - constraining the path of the next agent according to the current agent's path
             for next_agent in range(i+1,self.num_of_agents):
                 for time in range(len(path)):
                         constraints.append({'agent' : next_agent, 'loc' : [path[time]], 'timestep' : time})
                         if time > 0:
+                            #Task 2.2 - constraining the path of the next agent according to the current agent's path with edge constraints
                             constraints.append({'agent' : next_agent, 'loc' : [path[time],path[time-1]], 'timestep' : time})
             #Task 2.3 - blocking reached goals
                 while True:
@@ -59,6 +73,7 @@ class PrioritizedPlanningSolver(object):
                     next_agent_path=a_star(self.my_map, self.starts[next_agent], self.goals[next_agent], self.heuristics[next_agent], next_agent, constraints)
                     if next_agent_path is None:
                         raise BaseException('No solutions')
+                    #Task 2.4 - limiting the length of the path
                     if len(next_agent_path)>=len(path) + len(self.my_map)*len(self.my_map[0]):
                         raise BaseException('No solutions')
                     blocked_goal=path[-1]
@@ -72,10 +87,6 @@ class PrioritizedPlanningSolver(object):
             
             if path is None:
                 raise BaseException('No solutions')
-            # for t in range(len(path)-1):
-            #    for j in range(i+1, self.num_of_agents):
-            #        constraints.append({'loc': [path[t],path[t+1]], 'timestep': t, 'agent': j})
-            # constraints.append({'loc': [path[len(path)]], 'timestep': len(path), 'agent': i})
             result.append(path)
            
             

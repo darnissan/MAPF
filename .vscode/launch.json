@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Run experiments",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/code/run_experiments.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--instance", "instances/exp1.txt",
+                "--solver", "Prioritized"
+            ]
+        }
+    ]
+}
